@@ -1,91 +1,162 @@
 /**
- * The size of the queue is fixed and a single block of memory is used as if the first element is connected to the last element.
+ * ==========================
+ * CIRCULAR QUEUE (FIFO)
+ * ==========================
  *
- * also referred to as circular buffer or ring buffer and follow the FIFO principle
+ * Queue follows FIFO (First In First Out).
  *
- * A circular queue will reuse the empty block created during the dequeue operation.
- * when working with queue of fixed maximum size, a circular queue is great implementation choice.
+ * Unlike a normal queue, a circular queue reuses empty spaces.
  *
  * Example:
- * clock
- * streaming data
- * traffic light
+ * Capacity = 5
  *
- * The circular queue data structure support 2 main operation
- *  - enqueue, which adds an element to the  rare/tail of the collection
- *  - dequeue, which removes the element from head/front of the collection
+ * Index:
+ * 0   1   2   3   4
  *
- *      - isFull(): check if the queue is full
- *      - isEmpty(): check if the queue is empty
- *      - peek() : get the value of the front element without removing
- *      - size(): get the number of elements in the queue
- *      - print(): visualize the elements in the queue
+ * After inserting:
+ * [10,20,30,40,50]
+ *
+ * Remove 10 and 20
+ *
+ * [_, _,30,40,50]
+ *
+ * In a NORMAL queue:
+ * ❌ You cannot insert more because rear is already at index 4.
+ *
+ * In a CIRCULAR queue:
+ * ✅ rear wraps to index 0 and inserts there.
+ *
+ * Formula:
+ * rear = (rear + 1) % capacity
+ * front = (front + 1) % capacity
+ *
+ * Why % ?
+ * It wraps the pointer back to index 0.
+ *
+ * 4 -> 0 -> 1 -> 2 -> ...
  */
 
 class CircularQueue {
   constructor(capacity) {
     this.items = new Array(capacity);
     this.capacity = capacity;
+
+    // Number of elements currently in queue
     this.currentLength = 0;
+
+    // First element index
     this.front = -1;
-    this.rare = -1;
+
+    // Last element index
+    this.rear = -1;
   }
 
-  isFull() {
-    return this.currentLength === this.capacity;
-  }
-
+  /**
+   * Queue is empty?
+   */
   isEmpty() {
     return this.currentLength === 0;
   }
 
-  enqueue(element) {
-    if (!this.isEmpty()) {
-      this.rare = (this.rare + 1) % this.capacity;
-      this.items[this.rare] = element;
-      this.currentLength += 1;
-      if (this.front === -1) {
-        this.front = this.rare;
-      }
-    }
+  /**
+   * Queue is full?
+   */
+  isFull() {
+    return this.currentLength === this.capacity;
   }
 
+  /*
+   * Time Complexity : O(1)
+   */
+  enqueue(element) {
+    if (this.isFull()) {
+      console.log('Queue Overflow');
+      return;
+    }
+
+    if (this.isEmpty()) {
+      this.front = 0;
+    }
+
+    /**
+     * Move rear forward.
+     *
+     * % makes it circular.
+     */
+    this.rear = (this.rear + 1) % this.capacity;
+
+    this.items[this.rear] = element;
+
+    this.currentLength++;
+  }
+
+  /**
+   * Remove front element
+   *
+   * Time Complexity : O(1)
+   */
   dequeue() {
     if (this.isEmpty()) {
+      console.log('Queue Underflow');
       return null;
     }
 
     const item = this.items[this.front];
+
+    // Optional (for visualization)
     this.items[this.front] = null;
-    this.front = (this.front + 1) % this.capacity;
-    this.CircularQueue -= 1;
-    if (this.isEmpty()) {
+
+    /**
+     * Only one element?
+     *
+     * Reset queue.
+     */
+    if (this.front === this.rear) {
       this.front = -1;
-      this.rare = -1;
+      this.rear = -1;
+    } else {
+      /**
+       * Move front forward.
+       */
+      this.front = (this.front + 1) % this.capacity;
     }
+
+    this.currentLength--;
 
     return item;
   }
 
+  /**
+   * Return first element
+   */
   peek() {
-    if (!this.isEmpty()) {
-      this.items[this.front];
-    }
-
-    return null;
-  }
-
-  print() {
     if (this.isEmpty()) {
       return null;
     }
 
-    let i;
-    let str = "";
-    for (i = this.front; i !== this.rare; i = (1 + i) % this.capacity) {
-      str += this.items[i];
+    return this.items[this.front];
+  }
+
+  /**
+   * Print queue
+   */
+  print() {
+    if (this.isEmpty()) {
+      console.log('Queue Empty');
+      return;
     }
-    str += this.items[i];
-    console.log(str);
+
+    let result = '';
+    let i = this.front;
+
+    while (true) {
+      result += this.items[i] + ' ';
+
+      if (i === this.rear) break;
+
+      i = (i + 1) % this.capacity;
+    }
+
+    console.log(result);
   }
 }

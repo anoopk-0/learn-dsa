@@ -1,0 +1,223 @@
+/**
+ * ============================================
+ * MAX HEAP
+ * ============================================
+ *
+ * A Heap is a Complete Binary Tree.
+ *
+ * It is usually stored inside an ARRAY.
+ *
+ * We DO NOT create TreeNode objects.
+ *
+ * Example
+ *
+ *            100
+ *          /     \
+ *        80       70
+ *       /  \     /
+ *     20   40   60
+ *
+ * Array Representation
+ *
+ * Index
+ * 0   1   2   3   4   5
+ *
+ * Value
+ *100 80 70 20 40 60
+ *
+ *
+ * ===============================
+ * IMPORTANT FORMULAS
+ * ===============================
+ *
+ * parent(i)
+ * Math.floor((i-1)/2)
+ *
+ * leftChild(i)
+ * 2*i+1
+ *
+ * rightChild(i)
+ * 2*i+2
+ *
+ *
+ * ===============================
+ * IMPORTANT PROPERTY
+ * ===============================
+ *
+ * Parent >= Children
+ *
+ * ONLY parent-child relationship matters.
+ *
+ * Heap DOES NOT sort the entire array.
+ *
+ * Wrong assumption
+ *
+ * 100 80 70 20 40 60
+ *
+ * doesn't mean
+ *
+ * 80 > 70
+ * 40 > 20
+ *
+ * Those comparisons DO NOT matter.
+ *
+ *
+ * ===============================
+ * Time Complexity
+ * ===============================
+ *
+ * Insert      O(log n)
+ * Remove Max  O(log n)
+ * Peek        O(1)
+ */
+class MaxHeap {
+  constructor() {
+    this.heap = [];
+  }
+
+  /**
+   * Heap Empty?
+   */
+  isEmpty() {
+    return this.heap.length === 0;
+  }
+
+  /**
+   * Largest element
+   *
+   * Root always contains maximum.
+   */
+  peek() {
+    return this.heap[0];
+  }
+
+  /**
+   * Insert
+   *
+   * STEP 1
+   * Put element at end.
+   *
+   * STEP 2
+   * Move it upward until heap property
+   * becomes correct.
+   */
+  insert(value) {
+    this.heap.push(value);
+
+    this.heapifyUp();
+  }
+
+  /**
+   * Move inserted value upward.
+   */
+  heapifyUp() {
+    let index = this.heap.length - 1;
+
+    /**
+     * Continue until root.
+     */
+    while (index > 0) {
+      let parent = Math.floor((index - 1) / 2);
+
+      /**
+       * Parent already bigger?
+       *
+       * Heap is valid.
+       */
+      if (this.heap[parent] >= this.heap[index]) {
+        break;
+      }
+
+      /**
+       * Otherwise swap.
+       */
+      [this.heap[parent], this.heap[index]] = [this.heap[index], this.heap[parent]];
+
+      index = parent;
+    }
+  }
+
+  /**
+   * Remove maximum element.
+   *
+   * Root is always maximum.
+   */
+  remove() {
+    if (this.isEmpty()) {
+      return null;
+    }
+
+    /**
+     * One element?
+     */
+    if (this.heap.length === 1) {
+      return this.heap.pop();
+    }
+
+    const max = this.heap[0];
+
+    /**
+     * Move last element
+     * to root.
+     */
+    this.heap[0] = this.heap.pop();
+
+    /**
+     * Restore heap.
+     */
+    this.heapifyDown();
+
+    return max;
+  }
+
+  /**
+   * Move root downward.
+   */
+  heapifyDown() {
+    let index = 0;
+
+    const length = this.heap.length;
+
+    while (true) {
+      let left = 2 * index + 1;
+      let right = 2 * index + 2;
+
+      let largest = index;
+
+      /**
+       * Compare left child.
+       */
+      if (left < length && this.heap[left] > this.heap[largest]) {
+        largest = left;
+      }
+
+      /**
+       * Compare right child.
+       */
+      if (right < length && this.heap[right] > this.heap[largest]) {
+        largest = right;
+      }
+
+      /**
+       * Already valid?
+       */
+      if (largest === index) {
+        break;
+      }
+
+      /**
+       * Swap.
+       */
+      [this.heap[index], this.heap[largest]] = [this.heap[largest], this.heap[index]];
+
+      index = largest;
+    }
+  }
+
+  /**
+   * Print heap.
+   */
+  print() {
+    console.log(this.heap);
+  }
+}
